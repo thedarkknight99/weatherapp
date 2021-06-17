@@ -3,7 +3,7 @@ import './App.css';
 import Weather from './components/Weather'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'weather-icons/css/weather-icons.css'
-import Input from './components/Input';
+// import Input from './components/Input';
 
 
 

@@ -17,10 +17,49 @@ export class weather extends Component {
             temp_max: null,
             temp_min: null,
             description: "",
+            icon: undefined,
             error: false,
         }
 
+        this.weatherIcon = {
+            Thunderstorm: "wi-thunderstorm",
+            Drizzle: "wi-sleet",
+            Rain: "wi-storm-showers",
+            Snow: "wi-snow",
+            Atmosphere: "wi-fog",
+            Clear: "wi-day-sunny",
+            Clouds: "wi-day-fog",
+        };
+
     }
+    get_weatherIcon(icons, rangeId) {
+        switch (true) {
+            case rangeId >= 200 && rangeId <= 232:
+                this.setState({ icon: icons.Thunderstorm });
+                break;
+            case rangeId >= 300 && rangeId <= 321:
+                this.setState({ icon: icons.Drizzle });
+                break;
+            case rangeId >= 500 && rangeId <= 521:
+                this.setState({ icon: icons.Rain });
+                break;
+            case rangeId >= 600 && rangeId <= 781:
+                this.setState({ icon: icons.Snow });
+                break;
+            case rangeId >= 701 && rangeId <= 232:
+                this.setState({ icon: icons.Atmosphere });
+                break;
+            case rangeId === 800:
+                this.setState({ icon: icons.Clear });
+                break;
+            case rangeId >= 801 && rangeId <= 804:
+                this.setState({ icon: icons.Clouds });
+                break;
+            default:
+                this.setState({ icon: icons.Clouds })
+        }
+    }
+
     fetchApi = async (e) => {
         e.preventDefault()
         const city = e.target.elements.city.value
@@ -33,14 +72,17 @@ export class weather extends Component {
             console.log(response)
 
             this.setState({
-                city:`${response.name},${response.sys.country}`,
+                city: `${response.name},${response.sys.country}`,
                 // city: response.name,
                 // country: response.sys.country,
                 celcius: Math.floor(response.main.temp - 273.15),
                 temp_max: Math.floor(response.main.temp_max - 273.15),
                 temp_min: Math.floor(response.main.temp_min - 273.15),
-                description: response.weather[0].description
+                description: response.weather[0].description,
+                // icon:this.weatherIcon.Thunderstorm,
+                error: false
             })
+            this.get_weatherIcon(this.weatherIcon,response.weather[0].id);
         }
         else {
             this.setState({ error: true })
@@ -51,16 +93,26 @@ export class weather extends Component {
     render() {
 
         return (
-            <div className="container">
-                <Input submitEvent={this.fetchApi} error={this.state.error}/>
+            <div className="container text-light">
+                <Input submitEvent={this.fetchApi} error={this.state.error} />
                 <div className="sub-container pt-4">
                     <h1>{this.state.city}</h1>
-                    <h5 className="py-4"><i className="wi wi-day-sunny"></i></h5>
-                    <h1 className="py-5">{this.state.celcius}&deg;C</h1>
-                    <h5>
-                        <span className="px-5">Min:{this.state.temp_min}&deg;C</span>
-                        <span className="px-5">Max:{this.state.temp_max}&deg;C</span>
-                    </h5>
+                    {/* <h5 className="py-4"><i className="wi wi-day-sunny display-1"></i></h5> */}
+                    <h5 className="py-4"><i className={`wi ${this.state.icon} display-1`}></i></h5>
+
+                    {
+                        this.state.celcius ? <h1 className="py-5">{this.state.celcius}&deg;C</h1> : null
+                    }
+                    {
+                        (this.state.temp_min && this.state.temp_max) ?
+                            <h5>
+                                <span className="px-5">Min:{this.state.temp_min}&deg;C</span>
+                                <span className="px-5">Max:{this.state.temp_max}&deg;C</span>
+                            </h5>
+                            : null
+
+                    }
+
                     <h4 className="py-4">{this.state.description}</h4>
                 </div>
             </div>
